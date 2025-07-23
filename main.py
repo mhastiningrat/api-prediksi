@@ -1,9 +1,12 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query,Request
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, EmailStr
 from logic import prepare_features, get_data_from_db
+from user import userRegistration, userLogin
 import pandas as pd
+import asyncpg
 
 app = FastAPI()
 
@@ -14,6 +17,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+DATABASE_URL = ""
+
+@app.on_event("startup")
+async def startup():
+    app.state.db = await asyncpg.create_pool(DATABASE_URL)
+
+@app.on_event("shutdown")
+async def shutdown():
+    await app.state.db.close()
+
+class RegistrationRequest(BaseModel):
+    username: str
+    no_hp: str
+    password: str
+    email: EmailStr
+
+class LoginRequest(BaseModel):
+    no_hp: str
+    password: str
+
+class TokenResponse(BaseModel):
+    responseStatus:int
+    message:str
+    access_token: str
+    token_type: str = "bearer"
 
 # Endpoint dinamis dengan parameter
 @app.get("/rekomendasi-plafon")
@@ -31,3 +60,17 @@ async def rekomendasi_plafon(
     # Proses prediksi
     hasil = prepare_features(df.to_dict(orient="records"))
     return JSONResponse(content=hasil.to_dict(orient="records"))
+
+
+@app.post("/registration")
+async def registration(payload: RegistrationRequest):
+    # print(payload)
+    data = userRegistration(payload)
+    return JSONResponse(data)
+
+@app.post("/login", response_model=TokenResponse)
+async def login(payload: LoginRequest, request: Request):
+    db = request.app.state.db
+
+    data = await userLogin(payload,db)
+    return data

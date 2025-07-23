@@ -4,3 +4,7 @@ pandas
 scikit-learn
 joblib
 python-multipart
+passlib[bcrypt]
+pydantic
+asyncpg
+python-jose[cryptography]

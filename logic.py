@@ -17,16 +17,15 @@ def get_data_from_db(cust_no=None, start_date=None, end_date=None):
 
     base_query = """
         select 
-        ttl.no_trans_lending,
-        ttl.cust_no,ttl.plafon,
-        ttl.total_cair,
-        ttl.biaya_admin,
-        ttl.tanggal_trans ,
-        ttl.tanggal_jttmp ,
-        ttl.total_bayar, 
-        ttp.tanggal_bayar 
-        from gateway.tlen_trans_lending ttl 
-        left join gateway.tlen_trans_pembayaran ttp on ttl.no_trans_lending = ttp.no_trans_lending 
+        no_trans_lending,
+        cust_no,plafon,
+        total_cair,
+        biaya_admin,
+        tanggal_trans ,
+        tanggal_jttmp ,
+        total_bayar, 
+        tanggal_bayar 
+        from gateway.lending_data
         WHERE 1=1
     """
 
@@ -34,10 +33,10 @@ def get_data_from_db(cust_no=None, start_date=None, end_date=None):
     params = {}
 
     if cust_no:
-        filters.append("AND ttl.cust_no = :cust_no")
+        filters.append("AND cust_no = :cust_no")
         params['cust_no']=cust_no
     else:
-        filters.append("AND ttl.cust_no in (" \
+        filters.append("AND cust_no in (" \
         "'C100003179', 'C100008699', 'C100006240','C100006658','C100006686'," \
         "'C100001924','C100004191','C100003442','C100004511','C100003970'," \
         "'C100006045','C100007249','C100005028','C100006982','C100004241'," \
@@ -71,14 +70,14 @@ def get_data_from_db(cust_no=None, start_date=None, end_date=None):
 
 
     if start_date:
-        filters.append("AND ttl.tanggal_trans >= :start_date")
+        filters.append("AND tanggal_trans >= :start_date")
         params['start_date']=start_date
     if end_date:
-        filters.append("AND ttl.tanggal_trans <= :end_date")
+        filters.append("AND tanggal_trans <= :end_date")
         params['end_date']=end_date
    
 
-    final_query = f"""{base_query} {' '.join(filters)} ORDER BY ttl.tanggal_trans"""
+    final_query = f"""{base_query} {' '.join(filters)} ORDER BY tanggal_trans"""
     print(final_query)
     df = pd.read_sql(text(final_query), engine, params=params)
     df['nominal_transaksi'] = df['total_cair'] + df['biaya_admin']

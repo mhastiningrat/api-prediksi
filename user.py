@@ -15,7 +15,7 @@ def userRegistration(param):
     engine = create_engine(DATABASE_URL)
     params = {}
     base_query = """
-        select * from gateway.auth where no_hp = :no_hp
+        select * from gateway.lending_auth where no_hp = :no_hp
     """
     params['no_hp'] = param.no_hp
 
@@ -24,7 +24,7 @@ def userRegistration(param):
     if len(data) ==0:
     # Insert ke table lain (atau sama)
         insert_query = text("""
-            INSERT INTO gateway.auth (username, email, no_hp, password)
+            INSERT INTO gateway.lending_auth (username, email, no_hp, password)
             VALUES (:username, :email, :no_hp, :password)
         """)
         insert_params = {
@@ -50,7 +50,7 @@ def userRegistration(param):
         }
     
 async def userLogin(payload,db):
-    user = await db.fetchrow("SELECT * FROM gateway.auth WHERE no_hp = $1", payload.no_hp)
+    user = await db.fetchrow("SELECT * FROM gateway.lending_auth WHERE no_hp = $1", payload.no_hp)
 
     if not user:
         return TokenResponse(responseStatus=404,message='Account not found',access_token="")

@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 from logic import prepare_features, get_data_from_db
 from user import userRegistration, userLogin
+from analytic import getDataSixMonth
 import pandas as pd
 import asyncpg
 
@@ -73,4 +74,12 @@ async def login(payload: LoginRequest, request: Request):
     db = request.app.state.db
 
     data = await userLogin(payload,db)
+    return data
+
+@app.get("/analytic")
+async def dataSixMonth(cust_no:str, request: Request):
+    print(cust_no)
+    db = request.app.state.db
+
+    data = await getDataSixMonth(cust_no,db)
     return data

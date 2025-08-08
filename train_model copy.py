@@ -12,63 +12,50 @@ import joblib
 # === 1. Ambil data dari PostgreSQL ===
 def load_data_from_db():
 
-    # DATABASE_URL = "postgresql://lontarindo:t0kopintar789@117.54.116.43:5432/db_boss"
-    DATABASE_URL = "postgresql://neondb_owner:npg_0NhJsCfg2HUT@ep-lingering-truth-ad83kw5t.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+    DATABASE_URL = "postgresql://lontarindo:t0kopintar789@117.54.116.43:5432/db_boss"
     engine = create_engine(DATABASE_URL)
 
     query = """
-        select 
-        no_trans_lending,
-        cust_no,plafon,
-        total_cair,
-        biaya_admin,
-        tanggal_trans ,
-        tanggal_jttmp ,
-        total_bayar, 
-        tanggal_bayar 
-        from gateway.lending_data
-        WHERE tanggal_trans between '2024-01-01' and '2024-12-31'
-        LIMIT 75000
+    select 
+        ttl.no_trans_lending,
+        ttl.cust_no,
+        ttl.plafon,
+        ttl.total_cair,
+        ttl.biaya_admin,
+        ttl.tanggal_trans ,
+        ttl.tanggal_jttmp ,
+        ttl.total_bayar, 
+        ttp.tanggal_bayar 
+        from gateway.tlen_trans_lending ttl 
+        left join gateway.tlen_trans_pembayaran ttp on ttl.no_trans_lending = ttp.no_trans_lending 
+        WHERE ttl.tanggal_trans between '2024-01-01' and '2024-12-31' and ttl.cust_no not in ('C100003179','C100008699','C100006240','C100006658','C100006686',
+'C100001924','C100004191','C100003442','C100004511','C100003970',
+'C100006045','C100007249','C100005028','C100006982','C100004241',
+'C100004895','C100004332','C100007928','C100000485','C100007659',
+'C100002080','C100004024','C100000488','C100007295','C100001776',
+'C100007289','C100004971','C100001384','C100004737','C100001616',
+'C100003205','C100001879','C100001191','C100008073','C100006803',
+'C100000406','C100006832','C100005100','C100007123','C100000411',
+'C100003954','C100005423','C100006142','C100001558','C100005466',
+'C100001038','C100008474','C100000407','C100004691','C100004569',
+'C100002360','C100007265','C100001152','C100005472','C100005512',
+'C100009000','C100003492','C100000832','C100008046','C100006629',
+'C100004076','C100008346','C100007887','C100004422','C100004533',
+'C100003969','C100003354','C100001533','C100006625','C100002447',
+'C100006053','C100005156','C100006296','C100001161','C100003440',
+'C100002440','C100000583','C100008273','C100001327','C100005674',
+'C100001201','C100008653','C100003154','C100002474','C100008632',
+'C100003337','C100004532','C100001024','C100003590','C100000386',
+'C100001865','C100002351','C100001587','C100005213','C100000978',
+'C100004126','C100000422','C100002018','C100001843','C100008355',
+'C100000873','C100000953','C100000906','C100001403','C100001135',
+'C100006807','C100000391','C100004243','C100001210','C100005705',
+'C100000490','C100004823','C100008760','C100001192','C100003280',
+'C100005522','C100001895','C100001951','C100004360','C100006477',
+'C100004531','C100006098','C100000850','C100003188','C100001526',
+'C100002408','C100007975','C100002046','C100000970','C100003485','C100008081','C100008166','C100000392','C100005800')
+        LIMIT 5000
     """
-#   select 
-#         ttl.no_trans_lending,
-#         ttl.cust_no,
-#         ttl.plafon,
-#         ttl.total_cair,
-#         ttl.biaya_admin,
-#         ttl.tanggal_trans ,
-#         ttl.tanggal_jttmp ,
-#         ttl.total_bayar, 
-#         ttp.tanggal_bayar 
-#         from gateway.tlen_trans_lending ttl 
-#         left join gateway.tlen_trans_pembayaran ttp on ttl.no_trans_lending = ttp.no_trans_lending 
-#         WHERE ttl.tanggal_trans between '2024-01-01' and '2024-12-31' 
-#     ttl.cust_no not in ('C100003179','C100008699','C100006240','C100006658','C100006686',
-# 'C100001924','C100004191','C100003442','C100004511','C100003970',
-# 'C100006045','C100007249','C100005028','C100006982','C100004241',
-# 'C100004895','C100004332','C100007928','C100000485','C100007659',
-# 'C100002080','C100004024','C100000488','C100007295','C100001776',
-# 'C100007289','C100004971','C100001384','C100004737','C100001616',
-# 'C100003205','C100001879','C100001191','C100008073','C100006803',
-# 'C100000406','C100006832','C100005100','C100007123','C100000411',
-# 'C100003954','C100005423','C100006142','C100001558','C100005466',
-# 'C100001038','C100008474','C100000407','C100004691','C100004569',
-# 'C100002360','C100007265','C100001152','C100005472','C100005512',
-# 'C100009000','C100003492','C100000832','C100008046','C100006629',
-# 'C100004076','C100008346','C100007887','C100004422','C100004533',
-# 'C100003969','C100003354','C100001533','C100006625','C100002447',
-# 'C100006053','C100005156','C100006296','C100001161','C100003440',
-# 'C100002440','C100000583','C100008273','C100001327','C100005674',
-# 'C100001201','C100008653','C100003154','C100002474','C100008632',
-# 'C100003337','C100004532','C100001024','C100003590','C100000386',
-# 'C100001865','C100002351','C100001587','C100005213','C100000978',
-# 'C100004126','C100000422','C100002018','C100001843','C100008355',
-# 'C100000873','C100000953','C100000906','C100001403','C100001135',
-# 'C100006807','C100000391','C100004243','C100001210','C100005705',
-# 'C100000490','C100004823','C100008760','C100001192','C100003280',
-# 'C100005522','C100001895','C100001951','C100004360','C100006477',
-# 'C100004531','C100006098','C100000850','C100003188','C100001526',
-# 'C100002408','C100007975','C100002046','C100000970','C100003485','C100008081','C100008166','C100000392','C100005800')
 # and ttl.cust_no in (
 #         'C100003179', 'C100008699', 'C100006240','C100006658','C100006686','C100001924','C100004191','C100003442','C100004511','C100003970','C100006045','C100007249','C100005028','C100006982','C100004241','C100004895','C100004332','C100007928','C100000485','C100007659','C100002080','C100004024','C100000488','C100007295','C100001776','C100007289','C100004971','C100001384','C100004737','C100001616','C100003205','C100001879','C100001191','C100008073','C100006803','C100000406','C100006832','C100005100','C100007123','C100000411','C100003954','C100005423','C100006142','C100001558','C100005466','C100001038','C100008474','C100000407','C100004691','C100004569','C100002360','C100007265','C100001152','C100005472','C100005512','C100009000','C100003492','C100000832','C100008046','C100006629','C100004076','C100008346','C100007887','C100004422','C100004533','C100003969','C100003354','C100001533','C100006625','C100002447','C100006053','C100005156','C100006296','C100001161','C100003440','C100002440','C100000583','C100008273','C100001327','C100005674','C100001201','C100008653','C100003154','C100002474','C100008632','C100003337','C100004532','C100001024','C100003590','C100000386','C100001865','C100002351','C100001587','C100005213','C100000978','C100004126','C100000422','C100002018','C100001843','C100008355','C100000873','C100000953','C100000906','C100001403','C100001135','C100006807','C100000391','C100004243','C100001210','C100005705','C100000490','C100004823','C100008760','C100001192','C100003280','C100005522','C100001895','C100001951','C100004360','C100006477','C100004531','C100006098','C100000850','C100003188','C100001526','C100002408','C100007975','C100002046','C100000970','C100003485','C100008081','C100008166','C100000392','C100005800'
 #         )
@@ -139,38 +126,6 @@ def build_features(df):
     return pd.DataFrame(result)
 
 # === 3. Train model ===
-def train_model(df):
-    label_encoder = LabelEncoder()
-    df['label'] = label_encoder.fit_transform(df['rekomendasi_plafon'])
-
-    features = [
-        'rata2_penggunaan_plafon',
-        'maks_penggunaan_plafon',
-        'rasio_telat',
-        'total_transaksi',
-        'total_telat',
-        'total_cair'
-    ]
-
-    X = df[features]
-    y = df['label']
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-
-    model = LogisticRegression()
-    model.fit(X_train, y_train)
-
-    y_pred = model.predict(X_test)
-    print("=== Evaluation ===")
-    labels = unique_labels(y_test, y_pred)
-    target_names = label_encoder.inverse_transform(labels)
-    print(classification_report(y_test, y_pred, target_names=target_names))
-
-    joblib.dump(model, "model_plafon_75000_neon.pkl")
-    print("✅ Model saved as 'model_plafon.pkl'")
-
 # def train_model(df):
 #     label_encoder = LabelEncoder()
 #     df['label'] = label_encoder.fit_transform(df['rekomendasi_plafon'])
@@ -187,23 +142,13 @@ def train_model(df):
 #     X = df[features]
 #     y = df['label']
 
-#     # Split dulu
 #     X_train, X_test, y_train, y_test = train_test_split(
-#         X, y, test_size=0.2, random_state=42, stratify=y
+#         X, y, test_size=0.2, random_state=42
 #     )
 
-#     # Terapkan SMOTE di training data aja
-#     smote = SMOTE(random_state=42)
-#     X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
-
-#     print("Distribusi label sebelum SMOTE:", np.bincount(y_train))
-#     print("Distribusi label setelah SMOTE:", np.bincount(y_train_res))
-
-#     # Train model
 #     model = LogisticRegression()
-#     model.fit(X_train_res, y_train_res)
+#     model.fit(X_train, y_train)
 
-#     # Evaluasi
 #     y_pred = model.predict(X_test)
 #     print("=== Evaluation ===")
 #     labels = unique_labels(y_test, y_pred)
@@ -212,6 +157,48 @@ def train_model(df):
 
 #     joblib.dump(model, "model_plafon.pkl")
 #     print("✅ Model saved as 'model_plafon.pkl'")
+
+def train_model(df):
+    label_encoder = LabelEncoder()
+    df['label'] = label_encoder.fit_transform(df['rekomendasi_plafon'])
+
+    features = [
+        'rata2_penggunaan_plafon',
+        'maks_penggunaan_plafon',
+        'rasio_telat',
+        'total_transaksi',
+        'total_telat',
+        'total_cair'
+    ]
+
+    X = df[features]
+    y = df['label']
+
+    # Split dulu
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+
+    # Terapkan SMOTE di training data aja
+    smote = SMOTE(random_state=42)
+    X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+
+    print("Distribusi label sebelum SMOTE:", np.bincount(y_train))
+    print("Distribusi label setelah SMOTE:", np.bincount(y_train_res))
+
+    # Train model
+    model = LogisticRegression()
+    model.fit(X_train_res, y_train_res)
+
+    # Evaluasi
+    y_pred = model.predict(X_test)
+    print("=== Evaluation ===")
+    labels = unique_labels(y_test, y_pred)
+    target_names = label_encoder.inverse_transform(labels)
+    print(classification_report(y_test, y_pred, target_names=target_names))
+
+    joblib.dump(model, "model_plafon.pkl")
+    print("✅ Model saved as 'model_plafon.pkl'")
 
 
 

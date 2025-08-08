@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr
 from logic import prepare_features, get_data_from_db
 from user import userRegistration, userLogin
 from analytic import getDataSixMonth
-from mangum import Mangum
+# from mangum import Mangum
 import pandas as pd
 import asyncpg
 
@@ -86,4 +86,4 @@ async def dataSixMonth(cust_no:str, request: Request):
     return data
 
 
-handler = Mangum(app)
+# handler = Mangum(app)

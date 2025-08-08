@@ -11,7 +11,7 @@ import joblib
 # === 1. Ambil data dari PostgreSQL ===
 def load_data_from_db():
 
-    DATABASE_URL = ""
+    DATABASE_URL = "postgresql://neondb_owner:npg_0NhJsCfg2HUT@ep-lingering-truth-ad83kw5t.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
     engine = create_engine(DATABASE_URL)
 
     query = """
